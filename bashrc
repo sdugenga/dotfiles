@@ -23,3 +23,33 @@ if [ -d ~/.bashrc.d ]; then
     done
 fi
 unset rc
+
+# Custom prompt directory display
+prompt_dir() {
+  local dir="${PWD}"
+  local home="${HOME}"
+  
+  if [[ "$dir" == "$home" ]]; then
+    echo "~"
+  elif [[ "$dir" == "$home/"* ]]; then
+    local relative="${dir#$home/}"
+    local depth=$(echo "$relative" | tr -cd '/' | wc -c)
+    if [ "$depth" -eq 0 ]; then
+      echo "~/$relative"
+    else
+      echo "../${dir##*/}"
+    fi
+  else
+    echo "../${dir##*/}"
+  fi
+}
+
+PS1='\[\e[34m\]sa@'${HOSTNAME:0:3}'\[\e[0m\] \[\e[32m\]$(prompt_dir)\[\e[0m\] $ '
+
+# Aliases
+alias ll="ls -la"
+alias ..="cd .."
+alias ...="cd ../.."
+alias gs="git status"
+alias gp="git push"
+alias gc="git commit"
