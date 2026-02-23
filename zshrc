@@ -32,8 +32,20 @@ prompt_dir() {
   fi
 }
 
+# Git indicator
+git_indicator() {
+  git rev-parse --is-inside-work-tree 2>/dev/null 1>/dev/null && echo "● "
+}
+
+# Venv indicator
+venv_indicator() {
+  if [[ -n "$VIRTUAL_ENV" ]]; then
+    echo "(v) "
+  fi
+}
+
 setopt PROMPT_SUBST
-PROMPT='%F{blue}sam@leg%f %F{green}$(prompt_dir)%f%F{yellow}$(git_branch)%f $ '
+PROMPT='%F{green}$(venv_indicator)%f%F{blue}sam@leg%f %F{green}$(prompt_dir)%f%F{#b8860b}$(git_indicator)%f%% '
 
 # Aliases
 alias ll="ls -la"

@@ -44,7 +44,7 @@ prompt_dir() {
   fi
 }
 
-PS1='\[\e[34m\]sa@'${HOSTNAME:0:3}'\[\e[0m\] \[\e[32m\]$(prompt_dir)\[\e[0m\] $ '
+PS1='\[\e[34m\]sam@'${HOSTNAME:0:3}'\[\e[0m\] \[\e[32m\]$(prompt_dir)\[\e[0m\] $ '
 
 # Aliases
 alias ll="ls -la"
