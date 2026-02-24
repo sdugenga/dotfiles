@@ -45,7 +45,7 @@ venv_indicator() {
 }
 
 setopt PROMPT_SUBST
-PROMPT='%F{green}$(venv_indicator)%f%F{blue}sam@leg%f %F{green}$(prompt_dir)%f%F{#b8860b}$(git_indicator)%f%% '
+PROMPT='%F{green}$(venv_indicator)%f%F{blue}sam@leg%f %F{green}$(prompt_dir) %f%% '
 
 # Aliases
 alias ll="ls -la"
