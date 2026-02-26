@@ -37,6 +37,9 @@ git_indicator() {
   git rev-parse --is-inside-work-tree 2>/dev/null 1>/dev/null && echo "● "
 }
 
+# Disable the automatice prompt from venv
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
 # Venv indicator
 venv_indicator() {
   if [[ -n "$VIRTUAL_ENV" ]]; then
