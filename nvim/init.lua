@@ -17,9 +17,21 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
     {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.config").setup({})
+        local parsers = { "python", "lua", "vim", "vimdoc", "query" }
+        require("nvim-treesitter").setup()
+        vim.defer_fn(function()
+            require("nvim-treesitter").install(parsers):wait(300000)
+        end, 0)
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = parsers,
+            callback = function()
+                vim.treesitter.start()
+            end,
+        })
     end,
     },
     {
@@ -59,13 +71,86 @@ require("lazy").setup({
       require("telescope").setup({})
     end,
     },
-})
+    {
+        "williamboman/mason.nvim",
+        config = function()
+            require("mason").setup()
+        end,
+    },
+    {
+        "williamboman/mason-lspconfig.nvim",
+        dependencies = { "williamboman/mason.nvim" },
+        config = function()
+            require("mason-lspconfig").setup({
+                ensure_installed = { "pyright" },
+            })
+        end,
+    },
+    {
+    "neovim/nvim-lspconfig",
+    dependencies = { 
+        "williamboman/mason-lspconfig.nvim", 
+        "hrsh7th/cmp-nvim-lsp",
+        "hrsh7th/nvim-cmp",  -- add this
+    },
+    config = function()
+        local capabilities = vim.lsp.protocol.make_client_capabilities()
+        capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+        vim.lsp.config("pyright", { capabilities = capabilities })
+        vim.lsp.enable("pyright")
+    end,
+    },
+    {
+        "hrsh7th/nvim-cmp",
+        dependencies = {
+            "hrsh7th/cmp-nvim-lsp",
+            "L3MON4D3/LuaSnip",
+            "saadparwaiz1/cmp_luasnip"
+        },
+        config = function()
+            local has_words_before = function()
+                unpack = unpack or table.unpack
+                local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+                return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+            end
 
--- Enable treesitter highlighting
-vim.api.nvim_create_autocmd("FileType", {
-  callback = function()
-    pcall(vim.treesitter.start)
-  end,
+            local cmp = require("cmp")
+            local luasnip = require("luasnip")
+
+            cmp.setup({
+                snippet = {
+                    expand = function(args)
+                        luasnip.lsp_expand(args.body)
+                    end
+                },
+                completion = {
+                    autocomplete = { require("cmp.types").cmp.TriggerEvent.TextChanged },
+                },
+                mapping = cmp.mapping.preset.insert({
+                    ["<Tab>"] = cmp.mapping(function(fallback)
+                        if cmp.visible() then
+                            cmp.select_next_item()
+                        else
+                            fallback()
+                        end
+                    end, { "i", "s" }),
+                    ["<S-Tab>"] = cmp.mapping(function(fallback)
+                        if cmp.visible() then
+                            cmp.select_prev_item()
+                        else
+                            fallback()
+                        end
+                    end, { "i", "s" }),
+                    ["<C-e>"] = cmp.mapping.abort(),
+                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                }),
+                sources = {
+                    { name = "nvim_lsp" },
+                    { name = "luasnip" },
+                }
+            })
+        end,
+    },
 })
 
 -- transparency settings
@@ -114,3 +199,12 @@ map("n", "<leader>h", ":nohlsearch<CR>")
 map("n", "<leader>ff", ":Telescope find_files<CR>")
 map("n", "<leader>fg", ":Telescope live_grep<CR>")
 map("n", "<leader>fb", ":Telescope buffers<CR>")
+
+-- LSP keymaps
+map("n", "gd", vim.lsp.buf.definition)
+map("n", "K", vim.lsp.buf.hover)
+map("n", "<leader>rn", vim.lsp.buf.rename)
+map("n", "<leader>ca", vim.lsp.buf.code_action)
+map("n", "<leader>e", vim.diagnostic.open_float)
+map("n", "[d", vim.diagnostic.goto_prev)
+map("n", "]d", vim.diagnostic.goto_next)
