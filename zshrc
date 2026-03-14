@@ -47,6 +47,29 @@ venv_indicator() {
   fi
 }
 
+# tmux work session starter
+work() {
+  local project=${1:-.}
+  cd "$project"
+  local project_dir=$(pwd)
+
+  # activate venv if one exists
+  if [ -f "$project_dir/.venv/bin/activate" ]; then
+    source "$project_dir/.venv/bin/activate"
+  elif [ -f "$project_dir/venv/bin/activate" ]; then
+    source "$project_dir/venv/bin/activate"
+  fi
+
+  tmux new-session -d -s work -x "$(tput cols)" -y "$(tput lines)"
+  tmux split-window -v -p 20 -t work
+  tmux select-pane -t work:1.1
+  tmux split-window -h -t work:1.1
+  tmux send-keys -t work:1.1 "nvim ." Enter
+  tmux send-keys -t work:1.2 "nvim ." Enter
+  tmux select-pane -t work:1.1
+  tmux attach -t work
+}
+
 setopt PROMPT_SUBST
 PROMPT='%F{green}$(venv_indicator)%f%F{#74c7ec}${USER:0:3}%f%F{#89b4fa}@%f%F{#74c7ec}${HOST:0:3}%f %F{green}$(prompt_dir) %f%% '
 
