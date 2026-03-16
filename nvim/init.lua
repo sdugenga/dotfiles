@@ -157,6 +157,10 @@ require("lazy").setup({
 vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 
+-- netrw settings
+vim.g.netrw_banner = 0          -- hide the banner and sort sequence info
+vim.g.netrw_liststyle = 3       -- show file sizes and dates
+
 -- line length marker colour
 vim.api.nvim_set_hl(0, "ColorColumn", { bg = "#313244" })
 

@@ -63,9 +63,7 @@ work() {
   tmux new-session -d -s work -x "$(tput cols)" -y "$(tput lines)"
   tmux split-window -v -p 20 -t work
   tmux select-pane -t work:1.1
-  tmux split-window -h -t work:1.1
   tmux send-keys -t work:1.1 "nvim ." Enter
-  tmux send-keys -t work:1.2 "nvim ." Enter
   tmux select-pane -t work:1.1
   tmux attach -t work
 }
