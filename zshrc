@@ -54,11 +54,13 @@ work() {
   local project_dir=$(pwd)
 
   # activate venv if one exists
-  if [ -f "$project_dir/.venv/bin/activate" ]; then
-    source "$project_dir/.venv/bin/activate"
-  elif [ -f "$project_dir/venv/bin/activate" ]; then
-    source "$project_dir/venv/bin/activate"
-  fi
+if [ -z "$CONDA_DEFAULT_ENV" ] || [ "$CONDA_DEFAULT_ENV" = "base" ]; then
+    if [ -f "$project_dir/.venv/bin/activate" ]; then
+        source "$project_dir/.venv/bin/activate"
+    elif [ -f "$project_dir/venv/bin/activate" ]; then
+        source "$project_dir/venv/bin/activate"
+    fi
+fi
 
   tmux new-session -d -s work -x "$(tput cols)" -y "$(tput lines)"
   tmux split-window -v -p 20 -t work
@@ -78,3 +80,32 @@ alias ...="cd ../.."
 alias gs="git status"
 alias gp="git push"
 alias gc="git commit"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/sam/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/sam/miniforge3/etc/profile.d/conda.sh" ]; then
+        . "/home/sam/miniforge3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/sam/miniforge3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+
+# >>> mamba initialize >>>
+# !! Contents within this block are managed by 'mamba shell init' !!
+export MAMBA_EXE='/home/sam/miniforge3/bin/mamba';
+export MAMBA_ROOT_PREFIX='/home/sam/miniforge3';
+__mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__mamba_setup"
+else
+    alias mamba="$MAMBA_EXE"  # Fallback on help from mamba activate
+fi
+unset __mamba_setup
+# <<< mamba initialize <<<
